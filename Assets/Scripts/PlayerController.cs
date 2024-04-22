@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using TMPro;
 
+
 public class PlayerController : MonoBehaviour
 {
     public float speed = 1f;
@@ -11,6 +12,10 @@ public class PlayerController : MonoBehaviour
     private int PickUpCount;
     private Timer timer;
     private bool gameOver = false;
+    bool grounded = true;
+
+    public GameObject boosterCamera;
+
 
     [Header("UI")]
     public TMP_Text PickUpText;
@@ -44,14 +49,37 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+
         if (gameOver == true)
             return;
+        if (grounded)
+        {
+            float moveHorizontal = Input.GetAxis("Horizontal");
+            float moveVertical = Input.GetAxis("Vertical");
 
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+            Vector3 movement = new Vector3(moveHorizontal, 0, moveVertical);
+            rb.AddForce(movement * speed);
+        }  
+    }
 
-        Vector3 movement = new Vector3(moveHorizontal, 0, moveVertical);
-        rb.AddForce(movement * speed);
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.collider.CompareTag("Ground")) 
+        {
+            boosterCamera.SetActive(false);
+            grounded = true;
+
+        }
+           
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.collider.CompareTag("Ground"))
+        {
+            boosterCamera.SetActive(true);
+            grounded = true;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
